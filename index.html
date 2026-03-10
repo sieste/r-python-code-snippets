@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R & Python Code Examples</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, #0a0f1f 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -50%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 100px;
+            animation: fadeInUp 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+        .section:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .section-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            max-width: 100%;
+        }
+
+        .code-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .code-block:hover {
+            border-color: var(--accent);
+            box-shadow: 0 25px 60px rgba(59, 130, 246, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .code-block::before {
+            content: attr(data-language);
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary);
+            color: var(--accent-light);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+
+        .code-content {
+            position: relative;
+            padding: 45px 20px 20px;
+        }
+
+        pre {
+            margin: 0;
+            overflow-x: auto;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            color: var(--text-primary);
+        }
+
+        /* Syntax highlighting overrides */
+        .hljs {
+            background: transparent !important;
+            padding: 0 !important;
+            color: var(--text-primary) !important;
+        }
+
+        .hljs-number { color: #fbbf24 !important; }
+        .hljs-string { color: #86efac !important; }
+        .hljs-literal { color: #fbbf24 !important; }
+        .hljs-attr { color: #60a5fa !important; }
+        .hljs-keyword { color: #f472b6 !important; }
+        .hljs-function { color: #60a5fa !important; }
+        .hljs-title { color: #60a5fa !important; }
+        .hljs-params { color: var(--text-primary) !important; }
+        .hljs-comment { color: #64748b !important; }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .code-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 15px;
+            }
+
+            header {
+                margin-bottom: 50px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                margin-bottom: 60px;
+            }
+
+            .section-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .code-block::before {
+                top: 8px;
+                right: 8px;
+            }
+
+            .code-content {
+                padding: 40px 15px 15px;
+            }
+
+            pre {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>R & Python Code Examples</h1>
+            <p class="subtitle">Side-by-side comparison of equivalent code in R and Python</p>
+        </header>
+
+        <!-- Example 1: Data Loading -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Loading Data</h2>
+                <p class="section-description">Reading CSV files and displaying basic information about the dataset.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">library(readr)
+
+# Load CSV file
+data <- read_csv("data.csv")
+
+# View dimensions
+dim(data)
+# [1] 1000   5
+
+# Show first rows
+head(data)
+
+# Summary statistics
+summary(data)</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import pandas as pd
+
+# Load CSV file
+data = pd.read_csv("data.csv")
+
+# View dimensions
+data.shape
+# (1000, 5)
+
+# Show first rows
+data.head()
+
+# Summary statistics
+data.describe()</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 2: Data Filtering -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Filtering Data</h2>
+                <p class="section-description">Selecting rows and columns based on conditions and creating subsets.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">library(dplyr)
+
+# Filter rows where age > 30
+filtered <- data %>%
+  filter(age > 30)
+
+# Select specific columns
+subset <- data %>%
+  select(name, age, salary)
+
+# Chain operations
+result <- data %>%
+  filter(department == "Sales") %>%
+  select(-email)</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import pandas as pd
+
+# Filter rows where age > 30
+filtered = data[data['age'] > 30]
+
+# Select specific columns
+subset = data[['name', 'age', 'salary']]
+
+# Chain operations
+result = data[data['department'] == 'Sales']\
+    .drop(columns=['email'])
+
+# Alternative with loc
+result = data.loc[
+    data['department'] == 'Sales',
+    data.columns != 'email'
+]</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 3: Data Aggregation -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Grouping and Aggregation</h2>
+                <p class="section-description">Computing statistics grouped by categorical variables.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">library(dplyr)
+
+# Group by department and calculate mean
+summary_stats <- data %>%
+  group_by(department) %>%
+  summarise(
+    avg_salary = mean(salary),
+    count = n(),
+    max_age = max(age)
+  )
+
+# Multiple aggregations
+agg <- data %>%
+  group_by(region) %>%
+  summarise(
+    total = sum(sales),
+    avg = mean(sales)
+  )</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import pandas as pd
+
+# Group by department and calculate mean
+summary_stats = data.groupby('department').agg({
+    'salary': 'mean',
+    'age': 'max'
+}).rename(columns={'salary': 'avg_salary'})
+summary_stats['count'] = data.groupby(
+    'department').size()
+
+# Multiple aggregations
+agg = data.groupby('region').agg({
+    'sales': ['sum', 'mean']
+}).rename(
+    columns={'sum': 'total', 'mean': 'avg'}
+)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 4: Creating Columns -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Transformations and Calculations</h2>
+                <p class="section-description">Creating new columns through calculations and conditional logic.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">library(dplyr)
+
+# Create new columns
+data_new <- data %>%
+  mutate(
+    bonus = salary * 0.1,
+    seniority_level = case_when(
+      years_employed > 10 ~ "Senior",
+      years_employed > 5 ~ "Mid",
+      TRUE ~ "Junior"
+    ),
+    full_name = paste(
+      first_name, last_name, sep = " "
+    )
+  )</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import pandas as pd
+import numpy as np
+
+# Create new columns
+data['bonus'] = data['salary'] * 0.1
+
+# Conditional logic
+data['seniority_level'] = np.select(
+    [data['years_employed'] > 10,
+     data['years_employed'] > 5],
+    ['Senior', 'Mid'],
+    default='Junior'
+)
+
+# String concatenation
+data['full_name'] = (data['first_name'] + 
+    ' ' + data['last_name'])</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 5: Joining Data -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Merging Datasets</h2>
+                <p class="section-description">Combining multiple dataframes using join operations.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">library(dplyr)
+
+# Inner join
+combined <- left_join(
+  employees, departments,
+  by = "dept_id"
+)
+
+# Join with renamed key
+result <- inner_join(
+  df1, df2,
+  by = c("employee_id" = "emp_id")
+)
+
+# Multiple keys
+merged <- full_join(
+  sales, regions,
+  by = c("year", "region")
+)</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import pandas as pd
+
+# Inner join
+combined = employees.merge(
+    departments,
+    left_on='dept_id',
+    right_on='dept_id',
+    how='left'
+)
+
+# Join with renamed key
+result = df1.merge(
+    df2,
+    left_on='employee_id',
+    right_on='emp_id',
+    how='inner'
+)
+
+# Multiple keys
+merged = sales.merge(
+    regions,
+    on=['year', 'region'],
+    how='outer'
+)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Highlight all code blocks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre code').forEach(block => {
+                hljs.highlightElement(block);
+            });
+        });
+    </script>
+</body>
+</html>
