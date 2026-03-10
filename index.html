@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>R & Python Code Examples</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script nonce="abc" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -308,6 +308,1005 @@
             <h1>R & Python Code Examples</h1>
             <p class="subtitle">Side-by-side comparison of equivalent code in R and Python</p>
         </header>
+         <section class="section">
+         <div class="section-header">
+                <h2>Running python code</h2>
+                <p class="section-description">For starters use <a href="https://colab.research.google.com">Google Colab</a>, which is a browser based Jupyter Notebook environment that requires no setup on your computer. Choose "New Notebook" and paste python code into cells. Only the last output from each cell is shown, so you have to distribute the code across multiple notebook cells to see the result of each command.</p>
+          </div></section>
+
+       <!-- Example 1: Importing and Basic Array Operations -->
+        <section class="section">
+            <div class="section-header">
+                <h2>NumPy Basics</h2>
+                <p class="section-description">Like R, python requires explicit library imports at the top of the script to add new functions. Unlike R, python does not have native support for vectors and matrices and needs to import NumPy, Python's core numerical library. Note: Python arrays are 0-indexed (first element is index 0, not 1).</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">
+# Create a vector
+x <- c(1, 2, 3, 4, 5)
+
+# Access elements (1-indexed)
+x[1]  # Returns 1
+x[2:4]  # Returns 2, 3, 4
+
+# Element-wise operations work naturally
+y <- x * 2
+z <- x + 5
+                        </code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">
+import numpy as np
+# Create a NumPy array (like an R vector)
+x = np.array([1, 2, 3, 4, 5])
+
+# Access elements (0-indexed!) ← Python gotcha!
+x[0]  # Returns 1 (not x[1])
+x[1:4]  # Returns [2, 3, 4] (end exclusive)
+
+# Element-wise operations work the same
+y = x * 2
+z = x + 5
+
+# Check data type
+type(x)  # numpy.ndarray
+</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Example 11: NumPy Summary Statistics -->
+        <section class="section">
+            <div class="section-header">
+                <h2>NumPy Summary Statistics and Mathematical Functions</h2>
+                <p class="section-description">NumPy provides vectorized mathematical functions like <code>np.sqrt()</code>, <code>np.sum()</code>, <code>np.mean()</code>, etc. that work on arrays. Key difference: instead of <code>na.rm=TRUE</code>, use <code>np.nansum()</code>, <code>np.nanmean()</code>, etc. to ignore NaN values. Many functions accept <code>axis</code> parameter to compute along rows (axis=0) or columns (axis=1).</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">
+# Create a vector with missing values
+x <- c(1, 2, 3, NA, 5)
+
+# Basic math functions
+sqrt(x)  # Element-wise square root
+abs(x)   # Absolute value
+log(x)   # Natural log
+
+# Summary statistics
+sum(x)   # Returns NA
+sum(x, na.rm = TRUE)  # Returns 11
+
+mean(x)  # Returns NA
+mean(x, na.rm = TRUE)  # Returns 2.75
+
+sd(x, na.rm = TRUE)  # Standard deviation
+var(x, na.rm = TRUE)  # Variance
+min(x, na.rm = TRUE)  # Minimum
+max(x, na.rm = TRUE)  # Maximum
+
+# On matrices/2D arrays
+mat <- matrix(1:12, nrow = 3)
+colSums(mat)  # Sum down columns
+rowMeans(mat)  # Mean across rows</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+
+# Create array with NaN (Python's missing value)
+x = np.array([1, 2, 3, np.nan, 5])
+
+# Basic math functions
+np.sqrt(x)  # Element-wise square root
+np.abs(x)   # Absolute value
+np.log(x)   # Natural log
+
+# Summary statistics
+np.sum(x)  # Returns NaN
+np.nansum(x)  # Returns 11.0 (ignores NaN)
+
+np.mean(x)  # Returns NaN
+np.nanmean(x)  # Returns 2.75 (like na.rm=TRUE)
+
+np.nanstd(x)  # Standard deviation
+np.nanvar(x)  # Variance
+np.nanmin(x)  # Minimum
+np.nanmax(x)  # Maximum
+
+# On 2D arrays
+mat = np.arange(1, 13).reshape(3, 4)
+np.nansum(mat, axis=1)  # Sum across rows
+np.nansum(mat, axis=0)  # Sum down columns
+np.nanmean(mat, axis=1)  # Mean across rows
+
+# GOTCHA: axis=0 is DOWN (columns), axis=1 is ACROSS (rows)
+# GOTCHA: Use np.nan* versions to skip NaN values
+# GOTCHA: Regular np.sum() returns NaN if any NaN present</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+<!-- Example 12: NumPy Indexing and Slicing -->
+        <section class="section">
+            <div class="section-header">
+                <h2>NumPy Array Indexing and Slicing</h2>
+                <p class="section-description">NumPy indexing is 0-based and uses square brackets. Slicing syntax is <code>[start:stop:step]</code> where <code>stop</code> is exclusive. Critical gotcha: slices are <strong>views</strong> not copies—modifying a slice modifies the original array. Use <code>.copy()</code> if you need an independent copy. Boolean and fancy indexing create copies, but simple slices do not.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Create a vector
+x <- c(10, 20, 30, 40, 50)
+
+# Indexing (1-indexed)
+x[1]  # Returns 10
+x[c(1, 3, 5)]  # Returns 10, 30, 50
+
+# Slicing
+x[1:3]  # Returns 10, 20, 30 (inclusive on both ends)
+x[c(2:4)]  # Returns 20, 30, 40
+
+# Negative indexing (exclude)
+x[-1]  # Returns 20, 30, 40, 50
+x[c(-1, -5)]  # Exclude first and last
+
+# Logical indexing
+x[x > 25]  # Returns 30, 40, 50
+
+# Modify a subset
+x[1:2] <- c(100, 200)
+# x is now: 100, 200, 30, 40, 50
+
+# Create a matrix
+mat <- matrix(1:12, nrow = 3)
+mat[1, ]  # First row
+mat[, 2]  # Second column
+mat[1:2, 2:3]  # Subset</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+
+# Create an array
+x = np.array([10, 20, 30, 40, 50])
+
+# Indexing (0-indexed!)
+x[0]  # Returns 10
+x[[0, 2, 4]]  # Returns [10, 30, 50]
+
+# Slicing [start:stop:step] (stop is exclusive!)
+x[0:3]  # Returns [10, 20, 30] (not including 40)
+x[1:4]  # Returns [20, 30, 40]
+
+# Negative indexing (from end)
+x[-1]  # Returns 50 (last element)
+x[-3:]  # Returns [30, 40, 50] (last 3)
+
+# Step parameter
+x[::2]  # Every other element: [10, 30, 50]
+x[1::2]  # Every other starting at index 1: [20, 40]
+x[::-1]  # Reverse: [50, 40, 30, 20, 10]
+
+# Logical indexing
+x[x > 25]  # Returns [30, 40, 50]
+
+# GOTCHA: Slices are VIEWS, not copies!
+x_slice = x[1:4]  # This is a view
+x_slice[0] = 999  # Modifies original x!
+# x is now: [10, 999, 30, 40, 50]
+
+# Use .copy() to make independent copy
+x_copy = x[1:4].copy()
+x_copy[0] = 999  # Does NOT modify x
+
+# On 2D arrays
+mat = np.arange(1, 13).reshape(3, 4)
+mat[0, :]  # First row
+mat[:, 1]  # Second column
+mat[0:2, 1:3]  # Subset (rows 0-1, cols 1-2)
+
+# GOTCHA: Slicing is 0-indexed and stop is exclusive
+# GOTCHA: x[1:4] gets indices 1, 2, 3 (not 4!)
+# GOTCHA: Slices are views—modifying them modifies original
+# GOTCHA: Always use .copy() if you need independence</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Example 6: Basic Plotting with NumPy -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Basic Plotting with Matplotlib and NumPy Arrays</h2>
+                <p class="section-description">Matplotlib is Python's base plotting library (like base R graphics). It works directly with NumPy arrays. It requires an explicit command (<code>plt.show()</code>) to display plots. The syntax is more verbose than R and you need to think in terms of figure/axes objects. Key difference: you must specify figure size and manage the axes explicitly.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Simple scatter plot
+age <- c(25, 30, 35, 40, 45)
+salary <- c(50000, 60000, 75000, 85000, 95000)
+
+plot(age, salary, pch=16, col='blue', 
+     xlab='Age (years)', ylab='Salary ($)', 
+     main='Salary vs Age')
+
+# Histogram
+hist(salary, breaks=5, col='steelblue', 
+     main='Distribution of Salaries',
+     xlab='Salary ($)')
+
+# Line plot
+plot(age, salary, type='l', col='red',
+     xlab='Age', ylab='Salary')</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Create NumPy arrays
+age = np.array([25, 30, 35, 40, 45])
+salary = np.array([50000, 60000, 75000, 85000, 95000])
+
+# Simple scatter plot
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.scatter(age, salary, s=100, color='blue', alpha=0.6)
+ax.set_xlabel('Age (years)')
+ax.set_ylabel('Salary ($)')
+ax.set_title('Salary vs Age')
+plt.show()
+
+# Histogram
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.hist(salary, bins=5, color='steelblue', edgecolor='black')
+ax.set_xlabel('Salary ($)')
+ax.set_title('Distribution of Salaries')
+plt.show()
+
+# Line plot
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.plot(age, salary, color='red', linewidth=2)
+ax.set_xlabel('Age (years)')
+ax.set_ylabel('Salary ($)')
+plt.show()
+
+# GOTCHA: Must call plt.show() or plot won't display in scripts
+# GOTCHA: Figure/axes syntax is verbose compared to R
+# GOTCHA: In Jupyter, might need `%matplotlib inline` first
+# GOTCHA: figsize parameter takes (width, height) in inches</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Example 13: Multiple Plot Panels -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Multiple Plot Panels (Subplots)</h2>
+                <p class="section-description">Creating multi-panel figures requires different approaches. In R, use <code>layout()</code> or <code>par(mfrow=)</code> to define a grid, then sequential <code>plot()</code> calls fill the panels. In Python/Matplotlib, create the grid upfront with <code>plt.subplots()</code> and access panels via <code>ax[i, j]</code> indexing. The Python approach is more explicit but requires planning your layout before plotting.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Create sample data
+age <- c(25, 30, 35, 40, 45)
+salary <- c(50000, 60000, 75000, 85000, 95000)
+experience <- c(2, 5, 8, 12, 15)
+
+# Define 2x2 panel layout
+layout(matrix(c(1, 2, 3, 4), nrow=2, ncol=2))
+
+# Panel 1: Scatter plot
+plot(age, salary, pch=16, col='blue',
+     main='Salary vs Age', xlab='Age', ylab='Salary')
+
+# Panel 2: Histogram
+hist(salary, breaks=5, col='steelblue',
+     main='Salary Distribution', xlab='Salary')
+
+# Panel 3: Line plot
+plot(experience, salary, type='l', col='red',
+     main='Salary vs Experience', 
+     xlab='Years', ylab='Salary')
+
+# Panel 4: Scatter plot
+plot(age, experience, pch=16, col='green',
+     main='Experience vs Age', 
+     xlab='Age', ylab='Years')</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Create sample data
+age = np.array([25, 30, 35, 40, 45])
+salary = np.array([50000, 60000, 75000, 85000, 95000])
+experience = np.array([2, 5, 8, 12, 15])
+
+# Create 2x2 grid of subplots (define upfront!)
+fig, ax = plt.subplots(2, 2, figsize=(12, 10))
+
+# Panel [0,0]: Scatter plot
+ax[0, 0].scatter(age, salary, s=100, color='blue', alpha=0.6)
+ax[0, 0].set_xlabel('Age (years)')
+ax[0, 0].set_ylabel('Salary ($)')
+ax[0, 0].set_title('Salary vs Age')
+
+# Panel [0,1]: Histogram
+ax[0, 1].hist(salary, bins=5, color='steelblue', edgecolor='black')
+ax[0, 1].set_xlabel('Salary ($)')
+ax[0, 1].set_title('Salary Distribution')
+
+# Panel [1,0]: Line plot
+ax[1, 0].plot(experience, salary, color='red', linewidth=2)
+ax[1, 0].set_xlabel('Years Experience')
+ax[1, 0].set_ylabel('Salary ($)')
+ax[1, 0].set_title('Salary vs Experience')
+
+# Panel [1,1]: Scatter plot
+ax[1, 1].scatter(age, experience, s=100, color='green', alpha=0.6)
+ax[1, 1].set_xlabel('Age (years)')
+ax[1, 1].set_ylabel('Years Experience')
+ax[1, 1].set_title('Experience vs Age')
+
+plt.tight_layout()  # Adjust spacing between panels
+plt.show()
+
+# GOTCHA: Define ALL subplots upfront with plt.subplots()
+# GOTCHA: Access panels with ax[row, col] (0-indexed!)
+# GOTCHA: For single row/column, ax is 1D array, not 2D
+# GOTCHA: Use plt.tight_layout() to prevent overlapping labels</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+                <!-- Example 14: Stochastic Simulation with np.random -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Stochastic Simulation: Temperature Time Series with Seasonality</h2>
+                <p class="section-description">NumPy's <code>np.random</code> module provides functions to generate random numbers for simulation. Common functions: <code>np.random.normal()</code> for Gaussian noise, <code>np.random.uniform()</code> for uniform random values, <code>np.random.seed()</code> for reproducibility. This example simulates a temperature time series with seasonal trend and random noise, then plots the results with both the noisy data and smoothed trend.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Set seed for reproducibility
+set.seed(42)
+
+# Create time vector (days, 2 years)
+days <- 1:730
+t <- days / 365.25
+
+# Simulate temperature: trend + seasonality + noise
+trend <- 15 + 5 * t
+seasonal <- 10 * sin(2 * pi * t)
+noise <- rnorm(length(days), mean=0, sd=2)
+temperature <- trend + seasonal + noise
+
+# Plot
+plot(days, temperature, type='l', col='gray', 
+     main='Simulated Temperature Time Series',
+     xlab='Days', ylab='Temperature (°C)',
+     ylim=c(0, 35))
+
+# Overlay smoothed trend
+lines(days, trend + seasonal, col='red', lwd=2)
+
+# Add legend
+legend('topleft', c('Observed (with noise)', 'True signal'),
+       col=c('gray', 'red'), lty=c(1, 1))</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Set seed for reproducibility
+np.random.seed(42)
+
+# Create time vector (days, 2 years)
+days = np.arange(1, 731)
+t = days / 365.25
+
+# Simulate temperature: trend + seasonality + noise
+trend = 15 + 5 * t
+seasonal = 10 * np.sin(2 * np.pi * t)
+noise = np.random.normal(loc=0, scale=2, size=len(days))
+temperature = trend + seasonal + noise
+
+# Plot
+fig, ax = plt.subplots(figsize=(12, 6))
+
+# Plot noisy observations
+ax.plot(days, temperature, color='gray', linewidth=0.8, 
+        label='Observed (with noise)', alpha=0.7)
+
+# Overlay true signal (trend + seasonality)
+ax.plot(days, trend + seasonal, color='red', linewidth=2,
+        label='True signal')
+
+ax.set_xlabel('Days')
+ax.set_ylabel('Temperature (°C)')
+ax.set_title('Simulated Temperature Time Series')
+ax.set_ylim([0, 35])
+ax.legend(loc='upper left')
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# GOTCHA: np.random.seed() sets global seed (not ideal in modern code)
+# GOTCHA: np.random.normal() takes loc and scale, not mean and sd
+# GOTCHA: size parameter must match length of your output array
+# GOTCHA: Use np.random.Generator for modern, reproducible random streams</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Example 9: Function Definition and Iteration -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Functions and Indentation (Critical!)</h2>
+                <p class="section-description">Python uses indentation to define code blocks (not braces). This is grammatically required—incorrect indentation is a syntax error. Functions must return values explicitly. The first line after <code>:</code> must be indented consistently.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Define a function
+calculate_bonus <- function(salary, 
+                             rate = 0.1) {
+  bonus <- salary * rate
+  return(bonus)
+}
+
+# Call the function with positional and named arguments
+my_bonus <- calculate_bonus(50000)
+my_bonus <- calculate_bonus(50000, 0.15)
+my_bonus <- calculate_bonus(rate = 0.15, salary = 50000)
+</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python"># Define a function
+# CRITICAL: indentation defines the function block!
+def calculate_bonus(salary, rate=0.1):
+    bonus = salary * rate
+    return bonus
+
+# Call the function with positional and named arguments
+my_bonus = calculate_bonus(50000)
+my_bonus = calculate_bonus(50000, rate=0.15)
+my_bonus = calculate_bonus(rate = 0.15, salary = 50000)
+
+# GOTCHA: Indentation is REQUIRED syntax
+# GOTCHA: Must explicitly return (otherwise function returns None)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Example 10: Data Types: Be Explicit About NumPy Array Types -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Data Types: NumPy Arrays and Type Strictness</h2>
+                <p class="section-description">R coerces types flexibly (often silently). Python and NumPy are strict—type mismatches cause errors instead of silent coercion. Every NumPy array has a single dtype (e.g., int64, float64, object). Operations between incompatible types fail. You must explicitly convert using <code>astype()</code>, <code>int()</code>, <code>float()</code>, etc.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># R coerces flexibly
+x <- "5"
+y <- x + 3  # R converts "5" to numeric
+# Result: 8
+
+# Vectors coerce automatically
+nums <- c("1", "2", "3")
+mean(nums)  # Coerces to numeric with warning
+
+# Check types
+class(x)    # "character"
+typeof(x)   # "character"
+class(nums) # "character"
+
+# Mixing types in vector
+mixed <- c(1, 2, "three")
+# All coerced to character: "1" "2" "three"</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+
+# Python does NOT coerce
+x = "5"
+y = x + 3  # TypeError! Can't add str + int
+
+# Must be explicit
+y = int(x) + 3  # Converts to int first, result: 8
+
+# NumPy arrays have a single dtype
+nums = np.array(['1', '2', '3'])
+nums.dtype  # dtype('U21') - Unicode string type
+
+# Cannot compute mean on string array
+np.mean(nums)  # TypeError!
+# Must convert first
+np.mean(nums.astype(int))  # Result: 2.0
+
+# Check types
+type(x)  # <class 'str'>
+nums.dtype  # Shows array dtype
+nums[0].dtype  # Shows element dtype
+
+# Mixing types forces common dtype
+mixed = np.array([1, 2, 'three'])
+mixed.dtype  # dtype('U21') - all converted to string
+# Result: ['1' '2' 'three']
+
+# Creating array with specific dtype
+floats = np.array([1, 2, 3], dtype=float)
+floats.dtype  # dtype('float64')
+
+# GOTCHA: No silent coercion—must convert explicitly
+# GOTCHA: Each array has ONE dtype for all elements
+# GOTCHA: String "5" is different from int 5
+# GOTCHA: Operations fail fast rather than coercing
+# GOTCHA: Mixing types forces lowest-common dtype (usually string)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+<!-- Example 15: Linear Regression Modeling and Diagnostics -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Fitting and Analyzing Linear Regression Models</h2>
+                <p class="section-description">R's <code>lm()</code> provides integrated model fitting with built-in diagnostic tools. Python requires external libraries: <code>statsmodels</code> mimics R's functionality with formula interface and comprehensive diagnostics, while <code>scikit-learn</code> is more minimalist and focused on prediction. Statsmodels gives you p-values and confidence intervals; sklearn requires manual computation or alternative libraries.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Set seed and simulate data
+set.seed(42)
+n <- 100
+x <- rnorm(n, mean=50, sd=10)
+y <- 10 + 1.5 * x + rnorm(n, mean=0, sd=15)
+
+# Fit linear model
+model <- lm(y ~ x)
+
+# View results
+summary(model)
+
+# Extract key statistics
+coef(model)         # Coefficients
+confint(model)      # Confidence intervals
+residuals(model)    # Residuals
+fitted(model)       # Fitted values
+
+# Model diagnostics
+r_squared <- summary(model)$r.squared
+adj_r_squared <- summary(model)$adj.r.squared
+aic <- AIC(model)
+
+# Prediction
+new_x <- data.frame(x = c(40, 50, 60))
+predict(model, newdata=new_x, 
+        se.fit=TRUE, interval='confidence')</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+import statsmodels.api as sm
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+# Set seed and simulate data
+np.random.seed(42)
+n = 100
+x = np.random.normal(loc=50, scale=10, size=n)
+y = 10 + 1.5 * x + np.random.normal(loc=0, scale=15, size=n)
+
+# ===== Using statsmodels (R-like) =====
+# Add constant for intercept
+X_sm = sm.add_constant(x)
+
+# Fit model
+model_sm = sm.OLS(y, X_sm).fit()
+
+# View results (similar to R's summary)
+print(model_sm.summary())
+
+# Extract key statistics
+params = model_sm.params  # Coefficients
+conf_int = model_sm.conf_int()  # Confidence intervals
+residuals = model_sm.resid  # Residuals
+fitted = model_sm.fittedvalues  # Fitted values
+
+r_squared = model_sm.rsquared
+adj_r_squared = model_sm.rsquared_adj
+aic = model_sm.aic
+pvalues = model_sm.pvalues
+
+# Prediction with confidence intervals
+new_x_sm = sm.add_constant([40, 50, 60])
+predictions_sm = model_sm.get_prediction(new_x_sm)
+pred_summary = predictions_sm.summary_frame(alpha=0.05)
+print(pred_summary)
+
+# ===== Using scikit-learn (minimalist) =====
+model_sk = LinearRegression()
+model_sk.fit(x.reshape(-1, 1), y)
+
+# Extract results
+intercept = model_sk.intercept_
+slope = model_sk.coef_[0]
+
+# Manual computation of R² and diagnostics
+y_pred = model_sk.predict(x.reshape(-1, 1))
+r2 = r2_score(y, y_pred)
+rmse = np.sqrt(mean_squared_error(y, y_pred))
+residuals_sk = y - y_pred
+
+# Prediction (no confidence intervals by default)
+new_x_sk = np.array([40, 50, 60]).reshape(-1, 1)
+predictions_sk = model_sk.predict(new_x_sk)
+
+# GOTCHA: sklearn needs X reshaped to 2D (-1, 1)
+# GOTCHA: statsmodels requires explicit constant term with add_constant()
+# GOTCHA: sklearn doesn't provide p-values or confidence intervals directly
+# GOTCHA: statsmodels output mimics R; sklearn is more minimal
+# GOTCHA: Use statsmodels for inference, sklearn for prediction</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 2: Creating and Inspecting DataFrames -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Creating DataFrames and Initial Exploration</h2>
+                <p class="section-description">Pandas DataFrames are Python's equivalent to R data.frames. Key difference: in Python, <code>df.shape</code> returns (rows, columns), and you must use <code>.head()</code>, <code>.tail()</code>, <code>.info()</code> methods rather than just typing the object name.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Create a data frame
+df <- data.frame(
+  name = c("Alice", "Bob", "Charlie"),
+  age = c(25, 30, 35),
+  salary = c(50000, 60000, 75000)
+)
+
+# Inspect the data
+df  # Print entire frame to console
+dim(df)  # Returns c(3, 3)
+head(df)  # First 6 rows (default)
+str(df)  # Structure and types
+summary(df)  # Descriptive statistics</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">
+import pandas as pd
+
+# Create a DataFrame
+df = pd.DataFrame({
+    'name': ['Alice', 'Bob', 'Charlie'],
+    'age': [25, 30, 35],
+    'salary': [50000, 60000, 75000]
+})
+
+# Inspect the data
+df  # In Jupyter this prints nicely
+df.shape  # Returns (3, 3) - note: rows FIRST
+df.head()  # First 5 rows (default, specify n=6)
+df.info()  # Types and memory info
+df.describe()  # Descriptive statistics
+
+# Access columns - note different syntax
+df['name']  # Returns Series
+df.age  # Attribute access (only works if no spaces)
+df[['name', 'age']]  # Subset to DataFrame</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 3: Filtering and Subsetting -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Filtering Rows - Boolean Indexing</h2>
+                <p class="section-description">R's filter() is intuitive, but Python's boolean indexing feels backwards at first. You create a boolean mask, then use it in square brackets. This is powerful once you get used to it, but requires different thinking than dplyr pipes.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">library(dplyr)
+
+# Simple filter
+adults <- df %>%
+  filter(age >= 30)
+
+# Multiple conditions (AND)
+high_earners <- df %>%
+  filter(age >= 30 & salary > 55000)
+
+# OR condition
+subset <- df %>%
+  filter(name == "Alice" | name == "Charlie")
+
+# NOT condition
+exclude <- df %>%
+  filter(!(age < 30))</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python"># Create boolean mask, then filter
+# This is the Pythonic way 
+mask = df['age'] >= 30
+adults = df[mask]
+
+# or do it in one line
+adults = df[df['age'] >= 30]
+
+# Multiple conditions: use & 
+# parentheses around each condition
+high_earners = df[
+    (df['age'] >= 30) & (df['salary'] > 55000)
+]
+
+# OR condition: use | 
+subset = df[
+    (df['name'] == 'Alice') | (df['name'] == 'Charlie')
+]
+
+# NOT condition: use ~ (not '!')
+exclude = df[~(df['age'] < 30)]</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 4: Creating New Columns -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Creating and Modifying Columns</h2>
+                <p class="section-description">In Python, modifying a DataFrame doesn't use <- or $ assignment the same way. Direct assignment modifies in place.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r">library(dplyr)
+
+# Using dplyr
+df <- df %>%
+  mutate(
+    annual_bonus = salary * 0.1,
+    name_upper = toupper(name)
+  )
+
+# Base R approach 
+df$new_col <- df$salary * 1.5</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">
+# Direct assignment (modifies in place)
+df['annual_bonus'] = df['salary'] * 0.1
+
+# String operations need .str accessor
+df['name_upper'] = df['name'].str.upper()
+</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+
+        <!-- Example 7: Working with Missing Data -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Handling Missing Data (NaN vs NA)</h2>
+                <p class="section-description">Python uses <code>np.nan</code> for missing values (not <code>NA</code>). The way missing data behaves in operations, grouping, and plotting differs subtly from R. Most pandas functions skip NaNs by default, but you need to be explicit about it sometimes.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># Create data with missing values
+df <- data.frame(
+  x = c(1, 2, NA, 4, 5),
+  y = c(10, NA, 30, 40, 50)
+)
+
+# Check for missing
+is.na(df$x)  # Returns logical vector
+
+# Remove rows with any NA
+df_clean <- na.omit(df)
+
+# Mean (NA propagates by default)
+mean(df$x)  # Returns NA
+mean(df$x, na.rm = TRUE)  # Returns 3
+
+# Drop missing in specific column
+df_no_na_x <- df %>%
+  filter(!is.na(x))</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">import numpy as np
+import pandas as pd
+
+# Create data with missing values
+df = pd.DataFrame({
+    'x': [1, 2, np.nan, 4, 5],
+    'y': [10, np.nan, 30, 40, 50]
+})
+
+# Check for missing
+df['x'].isna()  # Returns boolean Series
+
+# Remove rows with any NaN
+df_clean = df.dropna()
+
+# Mean (NaN is skipped by default!)
+df['x'].mean()  # Returns 3.0 (not NaN!)
+df['x'].mean(skipna=False)  # Returns NaN
+
+# Drop missing in specific column
+df_no_na_x = df[df['x'].notna()]
+
+# GOTCHA: Python's behavior is "friendly"
+# (skips NaN automatically), but you must be aware
+# it's happening to avoid silent errors</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example 8: Column Selection and Indexing -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Indexing: loc vs iloc (Critical Difference)</h2>
+                <p class="section-description">This is a major gotcha for R users. Python has TWO indexing methods: <code>loc</code> (label-based) and <code>iloc</code> (position-based, 0-indexed). Confusing these is a common source of bugs. R doesn't make this distinction.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="language-r"># R uses one indexing system
+df <- data.frame(
+  name = c("Alice", "Bob", "Charlie"),
+  age = c(25, 30, 35)
+)
+
+# By position (1-indexed)
+df[1, ]  # First row
+df[, 2]  # Second column
+
+# By name
+df[, "age"]  # age column
+df$age  # Same as above
+
+# Logical indexing
+df[df$age > 28, ]  # Rows where age > 28</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python">df = pd.DataFrame({
+    'name': ['Alice', 'Bob', 'Charlie'],
+    'age': [25, 30, 35]
+})
+
+# iloc: position-based (0-indexed)
+df.iloc[0, :]  # First row
+df.iloc[:, 1]  # Second column (age)
+df.iloc[0:2, 0:2]  # First 2 rows, first 2 cols
+
+# loc: label-based (by row/column names)
+df.loc[0, 'age']  # Access by row index and column name
+df.loc[:, 'age']  # All rows, age column
+
+# Boolean indexing (same as R)
+df[df['age'] > 28]  # Rows where age > 28
+
+# GOTCHA: iloc uses 0-indexing
+# GOTCHA: iloc slice [0:2] means rows 0-1 (not 0-2)
+# GOTCHA: loc uses row labels (usually 0,1,2...)
+# which are DIFFERENT from row positions!</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Example 10: DataType Awareness -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Data Types: Be Explicit About Object vs Value Types</h2>
+                <p class="section-description">R coerces types flexibly (often silently). Python is stricter and you must be more conscious of data types. String vs numeric operations behave very differently. Type mismatches cause errors instead of silent coercion.</p>
+            </div>
+            <div class="code-grid">
+                <div class="code-block" data-language="R">
+                    <div class="code-content">
+                        <pre><code class="code-language-r"># R coerces flexibly
+x <- "5"
+y <- x + 3  # R converts "5" to numeric
+# Result: 8
+
+# Works across operations
+df <- data.frame(
+  id = c("1", "2", "3"),
+  value = c(10, 20, 30)
+)
+mean(df$id)  # Coerces to numeric with warning
+
+# Check types
+class(x)
+typeof(x)</code></pre>
+                    </div>
+                </div>
+                <div class="code-block" data-language="Python">
+                    <div class="code-content">
+                        <pre><code class="language-python"># Python does NOT coerce
+x = "5"
+y = x + 3  # TypeError! Can't add str + int
+
+# Must be explicit
+y = int(x) + 3  # Converts to int first
+
+# DataFrame types matter
+df = pd.DataFrame({
+    'id': ['1', '2', '3'],  # String type
+    'value': [10, 20, 30]   # Numeric type
+})
+
+df['id'].mean()  # TypeError! Can't average strings
+df['id'].astype(int).mean()  # Convert first
+
+# Check types
+type(x)  # <class 'str'>
+df.dtypes  # Shows all column types
+df['id'].dtype  # Shows type of one column
+
+# GOTCHA: No silent coercion—must convert explicitly
+# GOTCHA: String "5" is different from int 5
+# GOTCHA: Operations fail fast rather than coercing</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
 
         <!-- Example 1: Data Loading -->
         <section class="section">
